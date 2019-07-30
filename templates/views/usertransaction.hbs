@@ -1,0 +1,35 @@
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/css/main.css'>
+    
+</head>
+<body>
+    {{>userheader}}
+    Transactions
+   
+     {{!-- <script src='../../src/index.js'></script> --}}
+    <table>
+        <thead>
+            
+            <th>Book Id</th>
+            <th>Book name</th>
+            <th>Return</th>
+        </thead>
+        <tbody>
+            {{#each transaction}}
+            <tr>
+                <td>{{book_id}}</td>
+                <td>{{book_name}}</td>
+                <td>
+                    <a href="/deletetransaction/{{_id}}/">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+</html>

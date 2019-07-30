@@ -1,44 +1,80 @@
 const express = require('express')
 const User = require('../models/user')
-const multer = require('multer')
-//const sharp = require('sharp')
+
 const auth = require('../middleware/auth.js')
-const {sendEmail,exitEmail} = require('../emails/account')
+const session = require('express-session')
+const bodyParser = require('body-parser')
+const sess = require('../middleware/sess')
+
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
+//app.use(bodyParser.json())
 const router = new express.Router
 
-router.post('/users', async (req, res) => {
+
+router.use(session({
+    name:'sid',
+    resave:false,
+    saveUninitialized:false,
+    secret:'secret',
+    cookie:{
+        sameSite:true
+    }
+    
+    
+  }))
+
+router.get('/trial',auth,async(req,res)=>{
+    console.log("Trial")
+})
+
+
+router.post('/register',urlencodedParser, async (req, res) => {
     const user = new User(req.body)
 
     try {
         await user.save()
-        sendEmail(user.email,user.name)
+        //sendEmail(user.email,user.name)
         const token = await user.generateAuthToken()
-        res.status(201).send({user,token})
+        //res.status(201).send({user,token})
+        res.send("Registered successfully!!")
     } catch (e) {
         res.status(400).send(e)
     }
 })
-
-router.post('/users/login',async(req,res)=>{
+router.post('/login',urlencodedParser,async(req,res)=>{
+    //const user = new User(req.body)
     try{
-        const user = await User.findByCredentials(req.body.email,req.body.password)
+        const user = await User.findByCredentials(req.body.name,req.body.password)
         const token = await user.generateAuthToken()
-        res.send({user,token})
+        req.session.name = user.name
+        console.log(req.session.name)
+    console.log(user.name)
+        
+
+        // console.log(req.session.name)
+        
+        res.render('books')
+        
+    //    res.headers.authorization = token   
     }catch(e){
-        res.status(400).send()
+      res.status(400).send(e)
+    }  
+})
+
+router.post('/userlogin',urlencodedParser,async(req,res)=>{
+    //const user = new User(req.body)
+    try{
+        const user = await User.findByCredentials(req.body.name,req.body.password)
+        req.session.name = user.name
+        console.log(req.session)
+       // const token = await user.generateAuthToken()
+        //res.send({user,token})
+        res.render('userbook',{})
+    }catch(e){
+        res.status(400).send(e)
     }
    
 })
-
-// router.get('/users',auth, async (req, res) => {
-//     try {
-//         const users = await User.find({})
-//         res.send(users)
-//     } catch (e) {
-//         res.status(500).send()
-//     }
-// })
-
 
 router.post('/users/logout',auth,async(req,res)=>{
     try{
@@ -68,25 +104,9 @@ router.get('/users/me',auth,async(req,res)=>{
     res.send(req.user)
 })
 
-// router.get('/users/:id', async (req, res) => {
-//     const _id = req.params.id
-
-//     try {
-//         const user = await User.findById(_id)
-
-//         if (!user) {
-//             return res.status(404).send()
-//         }
-
-//         res.send(user)
-//     } catch (e) {
-//         res.status(500).send()
-//     }
-// })
-
 router.patch('/users/me',auth,async(req,res)=>{
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['name','email','password','age']
+    const allowedUpdates = ['name','password','age']
     const isValidOperation = updates.every((update)=>{
         return allowedUpdates.includes(update)
     })
@@ -120,7 +140,7 @@ router.delete('/users/me',auth,async(req,res)=>{
     // }
    
     await req.user.remove()
-    exitEmail(req.user.email,req.user.name)
+    //exitEmail(req.user.email,req.user.name)
     res.send(req.user)
     }catch(e){
         res.status(500).send()
@@ -129,53 +149,7 @@ router.delete('/users/me',auth,async(req,res)=>{
 })
 
 
-const upload = multer({
-    //dest:'avatar',
-    limits:{
-        fileSize:1000000
-    },
-    fileFilter(req,file,cb){
-        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
-            return cb(new Error('Upload an image'))
-        }
-        cb(undefined,true)
-    }
-})
 
-
-
-
-router.post('/users/me/avatar',auth,upload.single('avatar'),async(req,res)=>{
-    req.user.avatar = req.file.buffer
-    await req.user.save()
-    res.send()
-},(error,req,res,next)=>{
-    res.status(400).send({error:error.message})
-})
-
-
-router.delete('/users/me/avatar',auth,async(req,res)=>{
-    req.user.avatar = undefined
-    await req.user.save()
-    res.send()
-
-})
-
-router.get('/users/_id/avatar', async(req,res)=>{
-    try{
-        const user = await User.findById(req.params.id)
-
-        if(!user || !user.avatar){
-            throw new Error()
-        }
-
-        res.set('Content-Type','image/jpg')
-        res.send(user.avatar)
-
-    }catch(e){
-        res.status(404).send()
-    }
-})
 
 
 module.exports = router

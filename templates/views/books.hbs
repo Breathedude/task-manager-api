@@ -1,0 +1,45 @@
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/css/main.css'>
+    
+</head>
+<body>
+    {{>header}}
+    Books
+    <a href="/addbook">Add Books</a>
+
+     {{!-- <script src='../../src/index.js'></script> --}}
+    <table>
+        <thead>
+            <th>Book name</th>
+            <th>Category name</th>
+            <th>Total Count</th>
+            <th>Present Count</th>
+            <th>Edit/Delete</th>
+        </thead>
+        <tbody>
+            {{#each book}}
+            <tr>
+                <td>{{book_name}}</td>
+                <td>{{category_name}}</td>
+                <td>{{total_count}}</td>
+                <td>{{present_count}}</td>
+                <td>
+                
+                    <a href="/deletebook/{{_id}}/">Delete</a>
+                    <a href="/editbook/{{_id}}/">Edit</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    
+ 
+
+</body>
+</html>

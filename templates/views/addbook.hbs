@@ -1,0 +1,46 @@
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/css/main.css'>
+    
+</head>
+<body>
+    {{>header}}
+    <div class="main-content">
+       
+   
+    <form method="POST" action="/addbooks">
+        {{#if book}}
+        <input value="{{book.book_name}}" name="book_name">
+        <select name="category_name">
+            {{#each category}}
+            <option value="{{category_name}}">{{category_name}}</option>
+            {{/each}}
+        </select>
+        <input value="{{book.total_count}}" name="total_count">
+        <input value="{{book.present_count}}" name="present_count">
+       {{else}}
+       <input placeholder="Book name" name="book_name">
+        <select name="category_name">
+            {{#each category}}
+            <option value="{{category_name}}">{{category_name}}</option>
+            {{/each}}
+        </select>
+        <input placeholder="Total count" name="total_count">
+        <input placeholder="Present count" name="present_count">
+        {{/if}}
+
+        <button>Add Book</button>
+    </form>
+
+   
+
+    </div>
+    
+    <!--script src='../../src/routers/user.js'></script-->
+   
+</body>
+</html>
